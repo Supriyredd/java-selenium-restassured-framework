@@ -1,0 +1,19 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Demo Shop - Login</title><script src="/app.js"></script></head>
+<body>
+<h1>Demo Shop</h1>
+<form id="login">
+  <input data-test="username" placeholder="Username" autocomplete="off">
+  <input data-test="password" type="password" placeholder="Password">
+  <button data-test="login-button" type="submit">Login</button>
+</form>
+<p data-test="error" role="alert" hidden></p>
+<script>
+document.getElementById('login').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const r = await api('/api/login', { method: 'POST', body: JSON.stringify({
+    username: document.querySelector('[data-test=username]').value,
+    password: document.querySelector('[data-test=password]').value }) });
+  if (r.status === 200) { sessionStorage.setItem('token', r.body.token); cart.set([]); location.href = '/inventory.html'; }
+  else { const el = document.querySelector('[data-test=error]'); el.textContent = r.body.error; el.hidden = false; }
+});
+</script></body></html>

@@ -1,0 +1,40 @@
+name: Selenium + REST Assured tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Start demo app
+        run: |
+          node app/server.js &
+          for i in $(seq 1 30); do curl -sf http://localhost:3000/api/health && break; sleep 1; done
+      - name: "Run suite (quality gate: any failure fails the build)"
+        run: mvn -B test -Dbrowser=${{ matrix.browser }} -Dheadless=true
+      - name: Upload TestNG reports and failure screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports-${{ matrix.browser }}
+          path: |
+            target/surefire-reports/
+            target/screenshots/

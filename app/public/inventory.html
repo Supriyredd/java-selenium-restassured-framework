@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Demo Shop - Products</title><script src="/app.js"></script></head>
+<body>
+<h1>Products</h1>
+<a data-test="cart-link" href="/cart.html">Cart (<span data-test="cart-count">0</span>)</a>
+<ul data-test="product-list"></ul>
+<script>
+if (!sessionStorage.getItem('token')) location.href = '/';
+(async () => {
+  const r = await api('/api/products');
+  const list = document.querySelector('[data-test=product-list]');
+  const count = () => document.querySelector('[data-test=cart-count]').textContent = cart.get().reduce((a, i) => a + i.quantity, 0);
+  r.body.forEach((p) => {
+    const li = document.createElement('li');
+    li.dataset.test = 'product';
+    li.innerHTML = `<span data-test="product-name">${p.name}</span> <span data-test="product-price">$${p.price.toFixed(2)}</span>
+      <button data-test="add-${p.id}" ${p.stock === 0 ? 'disabled' : ''}>${p.stock === 0 ? 'Out of stock' : 'Add to cart'}</button>`;
+    li.querySelector('button').addEventListener('click', () => {
+      const c = cart.get(); const ex = c.find((i) => i.productId === p.id);
+      ex ? ex.quantity++ : c.push({ productId: p.id, name: p.name, price: p.price, quantity: 1 });
+      cart.set(c); count();
+    });
+    list.appendChild(li);
+  });
+  count();
+})();
+</script></body></html>

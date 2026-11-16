@@ -1,0 +1,20 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Demo Shop - Cart</title><script src="/app.js"></script></head>
+<body>
+<h1>Your cart</h1>
+<ul data-test="cart-items"></ul>
+<p>Total: <span data-test="cart-total">$0.00</span></p>
+<button data-test="checkout">Place order</button>
+<p data-test="order-confirmation" hidden></p>
+<p data-test="error" role="alert" hidden></p>
+<script>
+if (!sessionStorage.getItem('token')) location.href = '/';
+const items = cart.get();
+const ul = document.querySelector('[data-test=cart-items]');
+items.forEach((i) => { const li = document.createElement('li'); li.dataset.test = 'cart-item'; li.textContent = `${i.name} x ${i.quantity}`; ul.appendChild(li); });
+document.querySelector('[data-test=cart-total]').textContent = '$' + items.reduce((a, i) => a + i.price * i.quantity, 0).toFixed(2);
+document.querySelector('[data-test=checkout]').addEventListener('click', async () => {
+  const r = await api('/api/orders', { method: 'POST', body: JSON.stringify({ items: items.map(({ productId, quantity }) => ({ productId, quantity })) }) });
+  if (r.status === 201) { const el = document.querySelector('[data-test=order-confirmation]'); el.textContent = `Order #${r.body.id} confirmed`; el.dataset.orderId = r.body.id; el.hidden = false; cart.set([]); }
+  else { const el = document.querySelector('[data-test=error]'); el.textContent = r.body.error; el.hidden = false; }
+});
+</script></body></html>

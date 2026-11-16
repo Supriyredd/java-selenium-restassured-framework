@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "required": [
+    "id",
+    "username",
+    "items",
+    "total",
+    "status",
+    "createdAt"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "username": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "productId",
+          "quantity"
+        ],
+        "properties": {
+          "productId": {
+            "type": "integer"
+          },
+          "quantity": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    },
+    "total": {
+      "type": "number",
+      "minimum": 0
+    },
+    "status": {
+      "enum": [
+        "CREATED"
+      ]
+    },
+    "createdAt": {
+      "type": "string"
+    }
+  },
+  "$schema": "http://json-schema.org/draft-04/schema#"
+}
